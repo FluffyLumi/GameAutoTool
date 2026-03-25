@@ -1,0 +1,5 @@
+[
+  {"type": "mouse", "action": "click", "x": 1845, "y": 95, "button": "left", "clicks": 1, "interval": 0.5},
+  {"type": "keyboard", "action": "press", "key": "w", "duration": 2},
+  {"type": "keyboard", "action": "hotkey", "keys": ["ctrl", "c"]}
+]

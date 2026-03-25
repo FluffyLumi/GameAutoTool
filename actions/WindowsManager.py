@@ -25,10 +25,9 @@ class WindowsManager:
         else:
             self.window_name = win32gui.GetWindowText(self.hwnd)
             self.class_name = win32gui.GetClassName(self.hwnd)
-
-            self.left, self.top, self.right, self.bottom = win32gui.GetWindowRect(self.hwnd)
-            self.width = self.right - self.left
-            self.height = self.bottom - self.top
+            # self.left, self.top, self.right, self.bottom = win32gui.GetWindowRect(self.hwnd)
+            # self.width = self.right - self.left
+            # self.height = self.bottom - self.top
         return True
 
     def bring_to_foreground(self):
@@ -37,6 +36,9 @@ class WindowsManager:
             time.sleep(0.5)
             win32gui.SetForegroundWindow(self.hwnd)
             time.sleep(0.5)
+            self.left, self.top, self.right, self.bottom = win32gui.GetWindowRect(self.hwnd)
+            self.width = self.right - self.left
+            self.height = self.bottom - self.top
             return True
         except Exception as e:
             print(f"设置前台窗口失败: {e}")
@@ -46,3 +48,8 @@ class WindowsManager:
         """隐藏窗口"""
         if self.hwnd:
             win32gui.ShowWindow(self.hwnd, win32con.SW_HIDE)
+
+if __name__ == "__main__":
+    wm = WindowsManager()
+    wm.find_window("Endfield", "UnityWndClass")
+    wm.bring_to_foreground()
