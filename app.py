@@ -16,7 +16,12 @@ from tkinter import filedialog, messagebox
 
 from actions.WindowsManager import WindowsManager
 import actions.Move as move
-from actions.ImageMatcher import TEMPLATES_DIR, find_on_screen, list_templates, save_template
+from actions.ImageMatcher import (
+    TEMPLATES_DIR,
+    find_on_screen,
+    list_templates,
+    save_template,
+)
 from actions.MacroRecorder import MacroRecorder
 from actions.HotkeyManager import HotkeyManager
 from actions.Scheduler import Scheduler, ScheduledTask
@@ -27,19 +32,18 @@ from actions.Scheduler import Scheduler, ScheduledTask
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
-FONT_MONO  = ("Consolas", 10)
-FONT_BODY  = ("Microsoft YaHei UI", 10)
-FONT_BOLD  = ("Microsoft YaHei UI", 11, "bold")
+FONT_MONO = ("Consolas", 10)
+FONT_BODY = ("Microsoft YaHei UI", 10)
+FONT_BOLD = ("Microsoft YaHei UI", 11, "bold")
 FONT_TITLE = ("Microsoft YaHei UI", 14, "bold")
 FONT_SMALL = ("Microsoft YaHei UI", 9)
 
-COLOR_GREEN  = ("#27ae60", "#2ecc71")
-COLOR_RED    = ("#c0392b", "#e74c3c")
+COLOR_GREEN = ("#27ae60", "#2ecc71")
+COLOR_RED = ("#c0392b", "#e74c3c")
 COLOR_PURPLE = ("#7d3c98", "#9b59b6")
-COLOR_BLUE   = ("#1a5276", "#2980b9")
+COLOR_BLUE = ("#1a5276", "#2980b9")
 COLOR_ORANGE = ("#ca6f1e", "#e67e22")
-COLOR_TEAL   = ("#117a65", "#1abc9c")
-
+COLOR_TEAL = ("#117a65", "#1abc9c")
 
 
 # ═════════════════════════════════════════
@@ -48,13 +52,22 @@ COLOR_TEAL   = ("#117a65", "#1abc9c")
 class ActionDialog(ctk.CTkToplevel):
     """添加 / 编辑单个动作的弹窗，支持全部动作类型"""
 
-    ALL_TYPES = ["mouse", "keyboard", "delay",
-                 "wait_image", "if_image_exist", "if_image_not_exist"]
+    ALL_TYPES = [
+        "mouse",
+        "keyboard",
+        "delay",
+        "wait_image",
+        "if_image_exist",
+        "if_image_not_exist",
+    ]
 
     _SIZES = {
-        "mouse": "440x340", "keyboard": "440x310", "delay": "440x220",
+        "mouse": "440x340",
+        "keyboard": "440x310",
+        "delay": "440x220",
         "wait_image": "480x370",
-        "if_image_exist": "560x520", "if_image_not_exist": "560x520",
+        "if_image_exist": "560x520",
+        "if_image_not_exist": "560x520",
     }
 
     def __init__(self, parent, action: dict | None, callback):
@@ -80,11 +93,15 @@ class ActionDialog(ctk.CTkToplevel):
         self.grid_columnconfigure(1, weight=1)
 
         ctk.CTkLabel(self, text="动作类型:", font=FONT_BODY).grid(
-            row=0, column=0, sticky="e", **pad)
+            row=0, column=0, sticky="e", **pad
+        )
         self.type_var = tk.StringVar(value="mouse")
         ctk.CTkOptionMenu(
-            self, variable=self.type_var, values=self.ALL_TYPES,
-            font=FONT_BODY, command=self._on_type_change,
+            self,
+            variable=self.type_var,
+            values=self.ALL_TYPES,
+            font=FONT_BODY,
+            command=self._on_type_change,
         ).grid(row=0, column=1, sticky="ew", **pad)
 
         self.dyn = ctk.CTkFrame(self, fg_color="transparent")
@@ -94,11 +111,18 @@ class ActionDialog(ctk.CTkToplevel):
 
         btn_row = ctk.CTkFrame(self, fg_color="transparent")
         btn_row.grid(row=2, column=0, columnspan=2, pady=14)
-        ctk.CTkButton(btn_row, text="✓  确定", width=110, font=FONT_BODY,
-                      command=self._save).pack(side="left", padx=8)
-        ctk.CTkButton(btn_row, text="✕  取消", width=110, font=FONT_BODY,
-                      fg_color="gray40", hover_color="gray55",
-                      command=self.destroy).pack(side="left", padx=8)
+        ctk.CTkButton(
+            btn_row, text="✓  确定", width=110, font=FONT_BODY, command=self._save
+        ).pack(side="left", padx=8)
+        ctk.CTkButton(
+            btn_row,
+            text="✕  取消",
+            width=110,
+            font=FONT_BODY,
+            fg_color="gray40",
+            hover_color="gray55",
+            command=self.destroy,
+        ).pack(side="left", padx=8)
 
         self._build_mouse_fields()
 
@@ -108,7 +132,8 @@ class ActionDialog(ctk.CTkToplevel):
 
     def _lbl(self, text: str, row: int):
         ctk.CTkLabel(self.dyn, text=text, anchor="e", font=FONT_BODY).grid(
-            row=row, column=0, padx=10, pady=5, sticky="e")
+            row=row, column=0, padx=10, pady=5, sticky="e"
+        )
 
     # ---------- 各类型字段 ----------
 
@@ -116,49 +141,61 @@ class ActionDialog(ctk.CTkToplevel):
         self._clear_dyn()
         self._lbl("动作:", 0)
         self.mouse_act_var = tk.StringVar(value="click")
-        ctk.CTkOptionMenu(self.dyn, variable=self.mouse_act_var,
-                          values=["click"], font=FONT_BODY).grid(
-            row=0, column=1, padx=10, pady=5, sticky="ew")
+        ctk.CTkOptionMenu(
+            self.dyn, variable=self.mouse_act_var, values=["click"], font=FONT_BODY
+        ).grid(row=0, column=1, padx=10, pady=5, sticky="ew")
 
         for row, (label, attr, default) in enumerate(
             [("X 坐标:", "x_var", "0"), ("Y 坐标:", "y_var", "0")], start=1
         ):
             self._lbl(label, row)
             setattr(self, attr, tk.StringVar(value=default))
-            ctk.CTkEntry(self.dyn, textvariable=getattr(self, attr),
-                         font=FONT_MONO).grid(row=row, column=1, padx=10, pady=5, sticky="ew")
+            ctk.CTkEntry(
+                self.dyn, textvariable=getattr(self, attr), font=FONT_MONO
+            ).grid(row=row, column=1, padx=10, pady=5, sticky="ew")
 
         self._lbl("鼠标键:", 3)
         self.button_var = tk.StringVar(value="left")
-        ctk.CTkOptionMenu(self.dyn, variable=self.button_var,
-                          values=["left", "right", "middle"],
-                          font=FONT_BODY).grid(row=3, column=1, padx=10, pady=5, sticky="ew")
+        ctk.CTkOptionMenu(
+            self.dyn,
+            variable=self.button_var,
+            values=["left", "right", "middle"],
+            font=FONT_BODY,
+        ).grid(row=3, column=1, padx=10, pady=5, sticky="ew")
 
         self._lbl("点击次数:", 4)
         self.clicks_var = tk.StringVar(value="1")
         ctk.CTkEntry(self.dyn, textvariable=self.clicks_var, font=FONT_MONO).grid(
-            row=4, column=1, padx=10, pady=5, sticky="ew")
+            row=4, column=1, padx=10, pady=5, sticky="ew"
+        )
 
     def _build_keyboard_fields(self):
         self._clear_dyn()
         self._lbl("动作:", 0)
         self.kb_act_var = tk.StringVar(value="tap")
         ctk.CTkOptionMenu(
-            self.dyn, variable=self.kb_act_var,
+            self.dyn,
+            variable=self.kb_act_var,
             values=["tap", "press", "hotkey"],
-            command=self._on_kb_act_change, font=FONT_BODY,
+            command=self._on_kb_act_change,
+            font=FONT_BODY,
         ).grid(row=0, column=1, padx=10, pady=5, sticky="ew")
 
         self._lbl("按键:", 1)
         self.key_var = tk.StringVar()
         self.key_entry = ctk.CTkEntry(
-            self.dyn, textvariable=self.key_var,
-            placeholder_text="如: w, space, enter", font=FONT_MONO)
+            self.dyn,
+            textvariable=self.key_var,
+            placeholder_text="如: w, space, enter",
+            font=FONT_MONO,
+        )
         self.key_entry.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
 
         self._lbl("持续时间(s):", 2)
         self.duration_var = tk.StringVar(value="0.1")
-        self.dur_entry = ctk.CTkEntry(self.dyn, textvariable=self.duration_var, font=FONT_MONO)
+        self.dur_entry = ctk.CTkEntry(
+            self.dyn, textvariable=self.duration_var, font=FONT_MONO
+        )
         self.dur_entry.grid(row=2, column=1, padx=10, pady=5, sticky="ew")
 
     def _build_delay_fields(self):
@@ -166,61 +203,91 @@ class ActionDialog(ctk.CTkToplevel):
         self._lbl("延迟时间(s):", 0)
         self.delay_var = tk.StringVar(value="1.0")
         ctk.CTkEntry(self.dyn, textvariable=self.delay_var, font=FONT_MONO).grid(
-            row=0, column=1, padx=10, pady=5, sticky="ew")
+            row=0, column=1, padx=10, pady=5, sticky="ew"
+        )
 
     def _build_wait_image_fields(self):
         self._clear_dyn()
         self._lbl("模板文件:", 0)
         self.wi_template_var = tk.StringVar()
         templates = list_templates()
-        ctk.CTkComboBox(self.dyn, variable=self.wi_template_var,
-                        values=templates if templates else ["（无模板）"],
-                        font=FONT_BODY).grid(row=0, column=1, padx=10, pady=5, sticky="ew")
+        ctk.CTkComboBox(
+            self.dyn,
+            variable=self.wi_template_var,
+            values=templates if templates else ["（无模板）"],
+            font=FONT_BODY,
+        ).grid(row=0, column=1, padx=10, pady=5, sticky="ew")
         self._lbl("置信度:", 1)
         self.wi_conf_var = tk.StringVar(value="0.8")
         ctk.CTkEntry(self.dyn, textvariable=self.wi_conf_var, font=FONT_MONO).grid(
-            row=1, column=1, padx=10, pady=5, sticky="ew")
+            row=1, column=1, padx=10, pady=5, sticky="ew"
+        )
         self._lbl("超时(s):", 2)
         self.wi_timeout_var = tk.StringVar(value="30")
         ctk.CTkEntry(self.dyn, textvariable=self.wi_timeout_var, font=FONT_MONO).grid(
-            row=2, column=1, padx=10, pady=5, sticky="ew")
+            row=2, column=1, padx=10, pady=5, sticky="ew"
+        )
         self._lbl("检测间隔(s):", 3)
         self.wi_interval_var = tk.StringVar(value="0.5")
         ctk.CTkEntry(self.dyn, textvariable=self.wi_interval_var, font=FONT_MONO).grid(
-            row=3, column=1, padx=10, pady=5, sticky="ew")
+            row=3, column=1, padx=10, pady=5, sticky="ew"
+        )
         self._lbl("区域(留空=全屏):", 4)
         rf = ctk.CTkFrame(self.dyn, fg_color="transparent")
         rf.grid(row=4, column=1, padx=10, pady=5, sticky="ew")
-        self.wi_rx = tk.StringVar(); self.wi_ry = tk.StringVar()
-        self.wi_rw = tk.StringVar(); self.wi_rh = tk.StringVar()
-        for v, ph in [(self.wi_rx,"X"),(self.wi_ry,"Y"),(self.wi_rw,"W"),(self.wi_rh,"H")]:
-            ctk.CTkEntry(rf, textvariable=v, placeholder_text=ph,
-                         width=52, font=FONT_MONO).pack(side="left", padx=2)
+        self.wi_rx = tk.StringVar()
+        self.wi_ry = tk.StringVar()
+        self.wi_rw = tk.StringVar()
+        self.wi_rh = tk.StringVar()
+        for v, ph in [
+            (self.wi_rx, "X"),
+            (self.wi_ry, "Y"),
+            (self.wi_rw, "W"),
+            (self.wi_rh, "H"),
+        ]:
+            ctk.CTkEntry(
+                rf, textvariable=v, placeholder_text=ph, width=52, font=FONT_MONO
+            ).pack(side="left", padx=2)
 
     def _build_if_image_fields(self, t: str):
         self._clear_dyn()
         cond = "存在" if t == "if_image_exist" else "不存在"
-        ctk.CTkLabel(self.dyn, text=f"条件：若模板图像「{cond}」",
-                     font=FONT_BODY, text_color="#5dade2").grid(
-            row=0, column=0, columnspan=2, padx=10, pady=(8, 4), sticky="w")
+        ctk.CTkLabel(
+            self.dyn,
+            text=f"条件：若模板图像「{cond}」",
+            font=FONT_BODY,
+            text_color="#5dade2",
+        ).grid(row=0, column=0, columnspan=2, padx=10, pady=(8, 4), sticky="w")
         self._lbl("模板文件:", 1)
         self.if_template_var = tk.StringVar()
         templates = list_templates()
-        ctk.CTkComboBox(self.dyn, variable=self.if_template_var,
-                        values=templates if templates else ["（无模板）"],
-                        font=FONT_BODY).grid(row=1, column=1, padx=10, pady=5, sticky="ew")
+        ctk.CTkComboBox(
+            self.dyn,
+            variable=self.if_template_var,
+            values=templates if templates else ["（无模板）"],
+            font=FONT_BODY,
+        ).grid(row=1, column=1, padx=10, pady=5, sticky="ew")
         self._lbl("置信度:", 2)
         self.if_conf_var = tk.StringVar(value="0.8")
         ctk.CTkEntry(self.dyn, textvariable=self.if_conf_var, font=FONT_MONO).grid(
-            row=2, column=1, padx=10, pady=5, sticky="ew")
+            row=2, column=1, padx=10, pady=5, sticky="ew"
+        )
         self._lbl("区域(留空=全屏):", 3)
         rf = ctk.CTkFrame(self.dyn, fg_color="transparent")
         rf.grid(row=3, column=1, padx=10, pady=5, sticky="ew")
-        self.if_rx = tk.StringVar(); self.if_ry = tk.StringVar()
-        self.if_rw = tk.StringVar(); self.if_rh = tk.StringVar()
-        for v, ph in [(self.if_rx,"X"),(self.if_ry,"Y"),(self.if_rw,"W"),(self.if_rh,"H")]:
-            ctk.CTkEntry(rf, textvariable=v, placeholder_text=ph,
-                         width=52, font=FONT_MONO).pack(side="left", padx=2)
+        self.if_rx = tk.StringVar()
+        self.if_ry = tk.StringVar()
+        self.if_rw = tk.StringVar()
+        self.if_rh = tk.StringVar()
+        for v, ph in [
+            (self.if_rx, "X"),
+            (self.if_ry, "Y"),
+            (self.if_rw, "W"),
+            (self.if_rh, "H"),
+        ]:
+            ctk.CTkEntry(
+                rf, textvariable=v, placeholder_text=ph, width=52, font=FONT_MONO
+            ).pack(side="left", padx=2)
         self._lbl("then（JSON）:", 4)
         self.then_box = ctk.CTkTextbox(self.dyn, height=80, font=FONT_MONO)
         self.then_box.insert("1.0", "[]")
@@ -246,8 +313,11 @@ class ActionDialog(ctk.CTkToplevel):
             self._build_if_image_fields(val)
 
     def _on_kb_act_change(self, val: str):
-        hint = {"hotkey": "如: ctrl+c（用+分隔）", "press": "如: w, space",
-                "tap": "如: w, space, enter"}.get(val, "")
+        hint = {
+            "hotkey": "如: ctrl+c（用+分隔）",
+            "press": "如: w, space",
+            "tap": "如: w, space, enter",
+        }.get(val, "")
         self.key_entry.configure(placeholder_text=hint)
         self.dur_entry.configure(state="normal" if val == "press" else "disabled")
 
@@ -281,21 +351,29 @@ class ActionDialog(ctk.CTkToplevel):
             self.wi_interval_var.set(str(self.action.get("interval", 0.5)))
             r = self.action.get("region")
             if r and len(r) == 4:
-                self.wi_rx.set(str(r[0])); self.wi_ry.set(str(r[1]))
-                self.wi_rw.set(str(r[2])); self.wi_rh.set(str(r[3]))
+                self.wi_rx.set(str(r[0]))
+                self.wi_ry.set(str(r[1]))
+                self.wi_rw.set(str(r[2]))
+                self.wi_rh.set(str(r[3]))
         elif t in ("if_image_exist", "if_image_not_exist"):
             self.if_template_var.set(self.action.get("template", ""))
             self.if_conf_var.set(str(self.action.get("confidence", 0.8)))
             r = self.action.get("region")
             if r and len(r) == 4:
-                self.if_rx.set(str(r[0])); self.if_ry.set(str(r[1]))
-                self.if_rw.set(str(r[2])); self.if_rh.set(str(r[3]))
+                self.if_rx.set(str(r[0]))
+                self.if_ry.set(str(r[1]))
+                self.if_rw.set(str(r[2]))
+                self.if_rh.set(str(r[3]))
             self.then_box.delete("1.0", "end")
-            self.then_box.insert("1.0", json.dumps(
-                self.action.get("then", []), ensure_ascii=False, indent=2))
+            self.then_box.insert(
+                "1.0",
+                json.dumps(self.action.get("then", []), ensure_ascii=False, indent=2),
+            )
             self.else_box.delete("1.0", "end")
-            self.else_box.insert("1.0", json.dumps(
-                self.action.get("else", []), ensure_ascii=False, indent=2))
+            self.else_box.insert(
+                "1.0",
+                json.dumps(self.action.get("else", []), ensure_ascii=False, indent=2),
+            )
 
     def _parse_region(self, rx, ry, rw, rh) -> list | None:
         vals = [rx.get(), ry.get(), rw.get(), rh.get()]
@@ -308,39 +386,62 @@ class ActionDialog(ctk.CTkToplevel):
         try:
             if t == "mouse":
                 act = {
-                    "type": "mouse", "action": self.mouse_act_var.get(),
-                    "x": int(self.x_var.get()), "y": int(self.y_var.get()),
+                    "type": "mouse",
+                    "action": self.mouse_act_var.get(),
+                    "x": int(self.x_var.get()),
+                    "y": int(self.y_var.get()),
                     "button": self.button_var.get(),
-                    "clicks": int(self.clicks_var.get()), "interval": 0.1,
+                    "clicks": int(self.clicks_var.get()),
+                    "interval": 0.1,
                 }
             elif t == "keyboard":
                 a = self.kb_act_var.get()
                 if a == "hotkey":
-                    keys = [k.strip() for k in self.key_var.get().split("+") if k.strip()]
+                    keys = [
+                        k.strip() for k in self.key_var.get().split("+") if k.strip()
+                    ]
                     act = {"type": "keyboard", "action": "hotkey", "keys": keys}
                 elif a == "press":
-                    act = {"type": "keyboard", "action": "press",
-                           "key": self.key_var.get(),
-                           "duration": float(self.duration_var.get())}
+                    act = {
+                        "type": "keyboard",
+                        "action": "press",
+                        "key": self.key_var.get(),
+                        "duration": float(self.duration_var.get()),
+                    }
                 else:
-                    act = {"type": "keyboard", "action": "tap", "key": self.key_var.get()}
+                    act = {
+                        "type": "keyboard",
+                        "action": "tap",
+                        "key": self.key_var.get(),
+                    }
             elif t == "delay":
                 act = {"type": "delay", "time": float(self.delay_var.get())}
             elif t == "wait_image":
-                region = self._parse_region(self.wi_rx, self.wi_ry, self.wi_rw, self.wi_rh)
-                act = {"type": "wait_image", "template": self.wi_template_var.get(),
-                       "confidence": float(self.wi_conf_var.get()),
-                       "timeout": float(self.wi_timeout_var.get()),
-                       "interval": float(self.wi_interval_var.get())}
+                region = self._parse_region(
+                    self.wi_rx, self.wi_ry, self.wi_rw, self.wi_rh
+                )
+                act = {
+                    "type": "wait_image",
+                    "template": self.wi_template_var.get(),
+                    "confidence": float(self.wi_conf_var.get()),
+                    "timeout": float(self.wi_timeout_var.get()),
+                    "interval": float(self.wi_interval_var.get()),
+                }
                 if region:
                     act["region"] = region
             elif t in ("if_image_exist", "if_image_not_exist"):
-                region = self._parse_region(self.if_rx, self.if_ry, self.if_rw, self.if_rh)
+                region = self._parse_region(
+                    self.if_rx, self.if_ry, self.if_rw, self.if_rh
+                )
                 then_acts = json.loads(self.then_box.get("1.0", "end").strip())
                 else_acts = json.loads(self.else_box.get("1.0", "end").strip())
-                act = {"type": t, "template": self.if_template_var.get(),
-                       "confidence": float(self.if_conf_var.get()),
-                       "then": then_acts, "else": else_acts}
+                act = {
+                    "type": t,
+                    "template": self.if_template_var.get(),
+                    "confidence": float(self.if_conf_var.get()),
+                    "then": then_acts,
+                    "else": else_acts,
+                }
                 if region:
                     act["region"] = region
             else:
@@ -367,7 +468,8 @@ class GameAutoToolApp(ctk.CTk):
         # 设置图标
         try:
             _icon = tk.PhotoImage(
-                file=os.path.join(os.path.dirname(__file__), "icon.png"))
+                file=os.path.join(os.path.dirname(__file__), "icon.png")
+            )
             self.iconphoto(True, _icon)
         except Exception:
             pass
@@ -400,7 +502,9 @@ class GameAutoToolApp(ctk.CTk):
         self.hotkey_mgr = HotkeyManager()
         self.hotkey_mgr.register("<f8>", lambda: self.after(0, self._run_actions))
         self.hotkey_mgr.register("<f9>", lambda: self.after(0, self._stop_actions))
-        self.hotkey_mgr.register("<f10>", lambda: self.after(0, self._toggle_recording_hotkey))
+        self.hotkey_mgr.register(
+            "<f10>", lambda: self.after(0, self._toggle_recording_hotkey)
+        )
         try:
             self.hotkey_mgr.start()
         except Exception:
@@ -430,7 +534,8 @@ class GameAutoToolApp(ctk.CTk):
         bar.grid_columnconfigure(4, weight=1)
 
         ctk.CTkLabel(
-            bar, text="⚡ GameAutoTool",
+            bar,
+            text="⚡ GameAutoTool",
             font=("Microsoft YaHei UI", 17, "bold"),
             text_color=("#1a5276", "#5dade2"),
         ).grid(row=0, column=0, padx=(16, 6), pady=14)
@@ -438,15 +543,20 @@ class GameAutoToolApp(ctk.CTk):
         ctk.CTkLabel(bar, text="│", text_color="gray50").grid(row=0, column=1, padx=4)
 
         ctk.CTkLabel(bar, text="目标窗口:", font=FONT_BODY).grid(
-            row=0, column=2, padx=(8, 4))
+            row=0, column=2, padx=(8, 4)
+        )
         self.win_name_var = tk.StringVar(value="洛克王国：世界  ")
         ctk.CTkEntry(
             bar, textvariable=self.win_name_var, width=200, font=FONT_BODY
         ).grid(row=0, column=3, padx=4)
 
         ctk.CTkButton(
-            bar, text="查找并激活", width=96, font=FONT_BODY,
-            fg_color=COLOR_BLUE[0], hover_color=COLOR_BLUE[1],
+            bar,
+            text="查找并激活",
+            width=96,
+            font=FONT_BODY,
+            fg_color=COLOR_BLUE[0],
+            hover_color=COLOR_BLUE[1],
             command=self._find_window,
         ).grid(row=0, column=4, padx=6, sticky="w")
 
@@ -457,9 +567,9 @@ class GameAutoToolApp(ctk.CTk):
 
         ctk.CTkLabel(bar, text="│", text_color="gray50").grid(row=0, column=6, padx=4)
 
-        ctk.CTkLabel(bar, text="F8=执行  F9=停止  F10=录制",
-                     font=FONT_SMALL, text_color="gray50").grid(
-            row=0, column=7, padx=8)
+        ctk.CTkLabel(
+            bar, text="F8=执行  F9=停止  F10=录制", font=FONT_SMALL, text_color="gray50"
+        ).grid(row=0, column=7, padx=8)
 
         ctk.CTkLabel(bar, text="│", text_color="gray50").grid(row=0, column=8, padx=4)
 
@@ -468,10 +578,6 @@ class GameAutoToolApp(ctk.CTk):
         )
         self.theme_switch.select()
         self.theme_switch.grid(row=0, column=9, padx=(6, 16))
-
-        )
-        self.theme_switch.select()
-        self.theme_switch.grid(row=0, column=7, padx=(6, 16))
 
     # ── 主内容区 ──
     def _build_main(self):
@@ -643,9 +749,12 @@ class GameAutoToolApp(ctk.CTk):
         self.tabs.grid(row=0, column=1, sticky="nsew", padx=(6, 0))
 
         for name in (
-            "🖱  坐标追踪", "📸  图像识别",
-            "🔴  宏录制", "⏱  定时计划",
-            "📋  日志", "🪟  窗口信息",
+            "🖱  坐标追踪",
+            "📸  图像识别",
+            "🔴  宏录制",
+            "⏱  定时计划",
+            "📋  日志",
+            "🪟  窗口信息",
         ):
             self.tabs.add(name)
 
@@ -655,7 +764,6 @@ class GameAutoToolApp(ctk.CTk):
         self._build_scheduler_tab(self.tabs.tab("⏱  定时计划"))
         self._build_log_tab(self.tabs.tab("📋  日志"))
         self._build_wininfo_tab(self.tabs.tab("🪟  窗口信息"))
-
 
     def _build_tracker_tab(self, tab):
         tab.grid_columnconfigure(0, weight=1)
@@ -789,11 +897,24 @@ class GameAutoToolApp(ctk.CTk):
         path_row = ctk.CTkFrame(tab, fg_color="transparent")
         path_row.grid(row=0, column=0, sticky="ew", padx=10, pady=(10, 4))
         path_row.grid_columnconfigure(1, weight=1)
-        ctk.CTkLabel(path_row, text="模板目录:", font=FONT_BODY).grid(row=0, column=0, padx=(0, 6))
-        ctk.CTkLabel(path_row, text=TEMPLATES_DIR, font=FONT_SMALL,
-                     text_color="gray55", anchor="w").grid(row=0, column=1, sticky="ew")
-        ctk.CTkButton(path_row, text="📂 打开", width=70, height=26, font=FONT_BODY,
-                      command=lambda: os.startfile(TEMPLATES_DIR)).grid(row=0, column=2, padx=(6, 0))
+        ctk.CTkLabel(path_row, text="模板目录:", font=FONT_BODY).grid(
+            row=0, column=0, padx=(0, 6)
+        )
+        ctk.CTkLabel(
+            path_row,
+            text=TEMPLATES_DIR,
+            font=FONT_SMALL,
+            text_color="gray55",
+            anchor="w",
+        ).grid(row=0, column=1, sticky="ew")
+        ctk.CTkButton(
+            path_row,
+            text="📂 打开",
+            width=70,
+            height=26,
+            font=FONT_BODY,
+            command=lambda: os.startfile(TEMPLATES_DIR),
+        ).grid(row=0, column=2, padx=(6, 0))
 
         # 截取保存模板区域
         cap_frame = ctk.CTkFrame(tab, corner_radius=8, fg_color=("gray88", "gray20"))
@@ -801,27 +922,46 @@ class GameAutoToolApp(ctk.CTk):
         cap_frame.grid_columnconfigure(1, weight=1)
 
         ctk.CTkLabel(cap_frame, text="── 截取新模板 ──", font=FONT_BOLD).grid(
-            row=0, column=0, columnspan=4, padx=12, pady=(8, 4), sticky="w")
+            row=0, column=0, columnspan=4, padx=12, pady=(8, 4), sticky="w"
+        )
 
         ctk.CTkLabel(cap_frame, text="文件名:", font=FONT_BODY).grid(
-            row=1, column=0, padx=10, pady=5)
+            row=1, column=0, padx=10, pady=5
+        )
         self.cap_name_var = tk.StringVar(value="template.png")
         ctk.CTkEntry(cap_frame, textvariable=self.cap_name_var, font=FONT_MONO).grid(
-            row=1, column=1, padx=6, pady=5, sticky="ew")
+            row=1, column=1, padx=6, pady=5, sticky="ew"
+        )
 
         ctk.CTkLabel(cap_frame, text="区域 X/Y/W/H:", font=FONT_BODY).grid(
-            row=2, column=0, padx=10, pady=5)
+            row=2, column=0, padx=10, pady=5
+        )
         region_row = ctk.CTkFrame(cap_frame, fg_color="transparent")
         region_row.grid(row=2, column=1, sticky="ew", padx=6)
-        self.cap_rx = tk.StringVar(); self.cap_ry = tk.StringVar()
-        self.cap_rw = tk.StringVar(); self.cap_rh = tk.StringVar()
-        for v, ph in [(self.cap_rx, "X"), (self.cap_ry, "Y"), (self.cap_rw, "W"), (self.cap_rh, "H")]:
-            ctk.CTkEntry(region_row, textvariable=v, placeholder_text=ph,
-                         width=56, font=FONT_MONO).pack(side="left", padx=3)
+        self.cap_rx = tk.StringVar()
+        self.cap_ry = tk.StringVar()
+        self.cap_rw = tk.StringVar()
+        self.cap_rh = tk.StringVar()
+        for v, ph in [
+            (self.cap_rx, "X"),
+            (self.cap_ry, "Y"),
+            (self.cap_rw, "W"),
+            (self.cap_rh, "H"),
+        ]:
+            ctk.CTkEntry(
+                region_row,
+                textvariable=v,
+                placeholder_text=ph,
+                width=56,
+                font=FONT_MONO,
+            ).pack(side="left", padx=3)
 
-        ctk.CTkButton(cap_frame, text="📷 3秒后截取并保存", font=FONT_BODY,
-                      command=self._capture_template).grid(
-            row=3, column=0, columnspan=2, padx=12, pady=(4, 10), sticky="w")
+        ctk.CTkButton(
+            cap_frame,
+            text="📷 3秒后截取并保存",
+            font=FONT_BODY,
+            command=self._capture_template,
+        ).grid(row=3, column=0, columnspan=2, padx=12, pady=(4, 10), sticky="w")
 
         # 模板列表 + 操作
         list_frame = ctk.CTkFrame(tab, corner_radius=8, fg_color=("gray88", "gray20"))
@@ -832,19 +972,36 @@ class GameAutoToolApp(ctk.CTk):
         hdr2 = ctk.CTkFrame(list_frame, fg_color="transparent")
         hdr2.grid(row=0, column=0, sticky="ew", padx=10, pady=(8, 4))
         hdr2.grid_columnconfigure(0, weight=1)
-        ctk.CTkLabel(hdr2, text="模板文件列表", font=FONT_BOLD).grid(row=0, column=0, sticky="w")
-        ctk.CTkButton(hdr2, text="↻ 刷新", width=64, height=26, font=FONT_BODY,
-                      command=self._refresh_templates).grid(row=0, column=1, padx=4)
+        ctk.CTkLabel(hdr2, text="模板文件列表", font=FONT_BOLD).grid(
+            row=0, column=0, sticky="w"
+        )
+        ctk.CTkButton(
+            hdr2,
+            text="↻ 刷新",
+            width=64,
+            height=26,
+            font=FONT_BODY,
+            command=self._refresh_templates,
+        ).grid(row=0, column=1, padx=4)
 
-        lb_wrap = ctk.CTkFrame(list_frame, fg_color=("gray92", "gray16"), corner_radius=4)
+        lb_wrap = ctk.CTkFrame(
+            list_frame, fg_color=("gray92", "gray16"), corner_radius=4
+        )
         lb_wrap.grid(row=1, column=0, sticky="nsew", padx=10, pady=4)
         lb_wrap.grid_rowconfigure(0, weight=1)
         lb_wrap.grid_columnconfigure(0, weight=1)
 
         self.tmpl_lb = tk.Listbox(
-            lb_wrap, selectmode=tk.SINGLE, bg="#1e1e2e", fg="#cdd6f4",
-            selectbackground="#1e66f5", font=("Consolas", 10),
-            relief="flat", borderwidth=0, activestyle="none", highlightthickness=0,
+            lb_wrap,
+            selectmode=tk.SINGLE,
+            bg="#1e1e2e",
+            fg="#cdd6f4",
+            selectbackground="#1e66f5",
+            font=("Consolas", 10),
+            relief="flat",
+            borderwidth=0,
+            activestyle="none",
+            highlightthickness=0,
         )
         tmpl_sb = ctk.CTkScrollbar(lb_wrap, command=self.tmpl_lb.yview)
         self.tmpl_lb.configure(yscrollcommand=tmpl_sb.set)
@@ -853,14 +1010,25 @@ class GameAutoToolApp(ctk.CTk):
 
         btn_row = ctk.CTkFrame(list_frame, fg_color="transparent")
         btn_row.grid(row=2, column=0, padx=10, pady=(4, 10))
-        ctk.CTkButton(btn_row, text="🔍 测试检测", font=FONT_BODY,
-                      command=self._test_detect).pack(side="left", padx=4)
+        ctk.CTkButton(
+            btn_row, text="🔍 测试检测", font=FONT_BODY, command=self._test_detect
+        ).pack(side="left", padx=4)
         self.detect_conf_var = tk.StringVar(value="0.8")
-        ctk.CTkEntry(btn_row, textvariable=self.detect_conf_var, width=50,
-                     placeholder_text="置信", font=FONT_MONO).pack(side="left", padx=4)
-        ctk.CTkButton(btn_row, text="🗑 删除", font=FONT_BODY,
-                      fg_color=COLOR_RED[0], hover_color=COLOR_RED[1],
-                      command=self._delete_template).pack(side="left", padx=4)
+        ctk.CTkEntry(
+            btn_row,
+            textvariable=self.detect_conf_var,
+            width=50,
+            placeholder_text="置信",
+            font=FONT_MONO,
+        ).pack(side="left", padx=4)
+        ctk.CTkButton(
+            btn_row,
+            text="🗑 删除",
+            font=FONT_BODY,
+            fg_color=COLOR_RED[0],
+            hover_color=COLOR_RED[1],
+            command=self._delete_template,
+        ).pack(side="left", padx=4)
 
         self._refresh_templates()
 
@@ -876,29 +1044,40 @@ class GameAutoToolApp(ctk.CTk):
         state_card.grid_columnconfigure(1, weight=1)
 
         ctk.CTkLabel(state_card, text="录制状态:", font=FONT_BODY).grid(
-            row=0, column=0, padx=12, pady=10)
-        self.rec_status_lbl = ctk.CTkLabel(state_card, text="● 未录制",
-                                           text_color="#e74c3c", font=FONT_BOLD)
+            row=0, column=0, padx=12, pady=10
+        )
+        self.rec_status_lbl = ctk.CTkLabel(
+            state_card, text="● 未录制", text_color="#e74c3c", font=FONT_BOLD
+        )
         self.rec_status_lbl.grid(row=0, column=1, padx=8, pady=10, sticky="w")
-        self.rec_count_lbl = ctk.CTkLabel(state_card, text="已录 0 个动作",
-                                          font=FONT_BODY, text_color="gray55")
+        self.rec_count_lbl = ctk.CTkLabel(
+            state_card, text="已录 0 个动作", font=FONT_BODY, text_color="gray55"
+        )
         self.rec_count_lbl.grid(row=0, column=2, padx=12, pady=10)
 
-        ctk.CTkLabel(state_card,
-                     text="鼠标坐标偏移与「目标窗口」自动同步 · 过滤 F8/F9/F10 键",
-                     font=FONT_SMALL, text_color="gray55").grid(
-            row=1, column=0, columnspan=3, padx=12, pady=(0, 8), sticky="w")
+        ctk.CTkLabel(
+            state_card,
+            text="鼠标坐标偏移与「目标窗口」自动同步 · 过滤 F8/F9/F10 键",
+            font=FONT_SMALL,
+            text_color="gray55",
+        ).grid(row=1, column=0, columnspan=3, padx=12, pady=(0, 8), sticky="w")
 
         # 开始/停止录制
         self.btn_record = ctk.CTkButton(
-            tab, text="⏺  开始录制  (F10)", height=40, font=FONT_BOLD,
-            fg_color=COLOR_ORANGE[0], hover_color=COLOR_ORANGE[1],
+            tab,
+            text="⏺  开始录制  (F10)",
+            height=40,
+            font=FONT_BOLD,
+            fg_color=COLOR_ORANGE[0],
+            hover_color=COLOR_ORANGE[1],
             command=self._toggle_recording,
         )
         self.btn_record.grid(row=1, column=0, padx=10, pady=6, sticky="ew")
 
         # 录制预览
-        preview_frame = ctk.CTkFrame(tab, corner_radius=8, fg_color=("gray88", "gray20"))
+        preview_frame = ctk.CTkFrame(
+            tab, corner_radius=8, fg_color=("gray88", "gray20")
+        )
         preview_frame.grid(row=2, column=0, sticky="nsew", padx=10, pady=4)
         preview_frame.grid_rowconfigure(1, weight=1)
         preview_frame.grid_columnconfigure(0, weight=1)
@@ -907,20 +1086,32 @@ class GameAutoToolApp(ctk.CTk):
         hdr.grid(row=0, column=0, sticky="ew", padx=10, pady=(8, 4))
         hdr.grid_columnconfigure(0, weight=1)
         ctk.CTkLabel(hdr, text="录制预览（最近录入）", font=FONT_BOLD).grid(
-            row=0, column=0, sticky="w")
+            row=0, column=0, sticky="w"
+        )
 
         self.rec_preview = ctk.CTkTextbox(
-            preview_frame, font=("Consolas", 10), state="disabled", wrap="none")
+            preview_frame, font=("Consolas", 10), state="disabled", wrap="none"
+        )
         self.rec_preview.grid(row=1, column=0, sticky="nsew", padx=10, pady=4)
 
         op_row = ctk.CTkFrame(preview_frame, fg_color="transparent")
         op_row.grid(row=2, column=0, padx=10, pady=(4, 10))
-        ctk.CTkButton(op_row, text="✓ 导入到动作列表", font=FONT_BODY,
-                      fg_color=COLOR_GREEN[0], hover_color=COLOR_GREEN[1],
-                      command=self._import_recording).pack(side="left", padx=4)
-        ctk.CTkButton(op_row, text="🗑 清空录制", font=FONT_BODY,
-                      fg_color="gray40", hover_color="gray55",
-                      command=self._clear_recording).pack(side="left", padx=4)
+        ctk.CTkButton(
+            op_row,
+            text="✓ 导入到动作列表",
+            font=FONT_BODY,
+            fg_color=COLOR_GREEN[0],
+            hover_color=COLOR_GREEN[1],
+            command=self._import_recording,
+        ).pack(side="left", padx=4)
+        ctk.CTkButton(
+            op_row,
+            text="🗑 清空录制",
+            font=FONT_BODY,
+            fg_color="gray40",
+            hover_color="gray55",
+            command=self._clear_recording,
+        ).pack(side="left", padx=4)
 
     # ── 定时计划 标签 ──
 
@@ -932,13 +1123,17 @@ class GameAutoToolApp(ctk.CTk):
         sch_bar.grid(row=0, column=0, sticky="ew", padx=10, pady=(10, 6))
         sch_bar.grid_columnconfigure(1, weight=1)
 
-        self.sch_status_lbl = ctk.CTkLabel(sch_bar, text="🟢 调度器运行中",
-                                           text_color="#2ecc71", font=FONT_BOLD)
+        self.sch_status_lbl = ctk.CTkLabel(
+            sch_bar, text="🟢 调度器运行中", text_color="#2ecc71", font=FONT_BOLD
+        )
         self.sch_status_lbl.grid(row=0, column=0, padx=12, pady=10, sticky="w")
 
-        ctk.CTkLabel(sch_bar,
-                     text="格式：HH:MM（每天定时）/ 30s（每30秒）/ 5m（每5分钟）/ 2h（每2小时）",
-                     font=FONT_SMALL, text_color="gray55").grid(row=0, column=1, padx=8)
+        ctk.CTkLabel(
+            sch_bar,
+            text="格式：HH:MM（每天定时）/ 30s（每30秒）/ 5m（每5分钟）/ 2h（每2小时）",
+            font=FONT_SMALL,
+            text_color="gray55",
+        ).grid(row=0, column=1, padx=8)
 
         list_frame = ctk.CTkFrame(tab, corner_radius=8, fg_color=("gray88", "gray20"))
         list_frame.grid(row=1, column=0, sticky="nsew", padx=10, pady=4)
@@ -948,14 +1143,29 @@ class GameAutoToolApp(ctk.CTk):
         hdr = ctk.CTkFrame(list_frame, fg_color="transparent")
         hdr.grid(row=0, column=0, sticky="ew", padx=10, pady=(8, 4))
         hdr.grid_columnconfigure(0, weight=1)
-        ctk.CTkLabel(hdr, text="计划任务列表", font=FONT_BOLD).grid(row=0, column=0, sticky="w")
-        ctk.CTkButton(hdr, text="↻ 刷新", width=64, height=26, font=FONT_BODY,
-                      command=self._refresh_schedule_list).grid(row=0, column=1, padx=4)
+        ctk.CTkLabel(hdr, text="计划任务列表", font=FONT_BOLD).grid(
+            row=0, column=0, sticky="w"
+        )
+        ctk.CTkButton(
+            hdr,
+            text="↻ 刷新",
+            width=64,
+            height=26,
+            font=FONT_BODY,
+            command=self._refresh_schedule_list,
+        ).grid(row=0, column=1, padx=4)
 
         self.sch_lb = tk.Listbox(
-            list_frame, selectmode=tk.SINGLE, bg="#1e1e2e", fg="#cdd6f4",
-            selectbackground="#1e66f5", font=("Consolas", 10),
-            relief="flat", borderwidth=0, activestyle="none", highlightthickness=0,
+            list_frame,
+            selectmode=tk.SINGLE,
+            bg="#1e1e2e",
+            fg="#cdd6f4",
+            selectbackground="#1e66f5",
+            font=("Consolas", 10),
+            relief="flat",
+            borderwidth=0,
+            activestyle="none",
+            highlightthickness=0,
         )
         sch_sb = ctk.CTkScrollbar(list_frame, command=self.sch_lb.yview)
         self.sch_lb.configure(yscrollcommand=sch_sb.set)
@@ -964,34 +1174,57 @@ class GameAutoToolApp(ctk.CTk):
 
         lb_btns = ctk.CTkFrame(list_frame, fg_color="transparent")
         lb_btns.grid(row=2, column=0, columnspan=2, padx=10, pady=(4, 8))
-        ctk.CTkButton(lb_btns, text="⏸ 启用/禁用", font=FONT_BODY,
-                      command=self._toggle_selected_task).pack(side="left", padx=4)
-        ctk.CTkButton(lb_btns, text="🗑 删除", font=FONT_BODY,
-                      fg_color=COLOR_RED[0], hover_color=COLOR_RED[1],
-                      command=self._delete_selected_task).pack(side="left", padx=4)
+        ctk.CTkButton(
+            lb_btns,
+            text="⏸ 启用/禁用",
+            font=FONT_BODY,
+            command=self._toggle_selected_task,
+        ).pack(side="left", padx=4)
+        ctk.CTkButton(
+            lb_btns,
+            text="🗑 删除",
+            font=FONT_BODY,
+            fg_color=COLOR_RED[0],
+            hover_color=COLOR_RED[1],
+            command=self._delete_selected_task,
+        ).pack(side="left", padx=4)
 
         add_frame = ctk.CTkFrame(tab, corner_radius=8, fg_color=("gray88", "gray20"))
         add_frame.grid(row=2, column=0, sticky="ew", padx=10, pady=4)
         add_frame.grid_columnconfigure(1, weight=1)
 
         ctk.CTkLabel(add_frame, text="── 添加新计划 ──", font=FONT_BOLD).grid(
-            row=0, column=0, columnspan=2, padx=12, pady=(8, 4), sticky="w")
+            row=0, column=0, columnspan=2, padx=12, pady=(8, 4), sticky="w"
+        )
         ctk.CTkLabel(add_frame, text="任务说明:", font=FONT_BODY).grid(
-            row=1, column=0, padx=10, pady=6, sticky="e")
+            row=1, column=0, padx=10, pady=6, sticky="e"
+        )
         self.sch_desc_var = tk.StringVar()
-        ctk.CTkEntry(add_frame, textvariable=self.sch_desc_var, font=FONT_BODY,
-                     placeholder_text="如：每日回血").grid(
-            row=1, column=1, padx=8, pady=6, sticky="ew")
+        ctk.CTkEntry(
+            add_frame,
+            textvariable=self.sch_desc_var,
+            font=FONT_BODY,
+            placeholder_text="如：每日回血",
+        ).grid(row=1, column=1, padx=8, pady=6, sticky="ew")
         ctk.CTkLabel(add_frame, text="时间规格:", font=FONT_BODY).grid(
-            row=2, column=0, padx=10, pady=6, sticky="e")
+            row=2, column=0, padx=10, pady=6, sticky="e"
+        )
         self.sch_time_var = tk.StringVar()
-        ctk.CTkEntry(add_frame, textvariable=self.sch_time_var, width=120,
-                     font=FONT_MONO, placeholder_text="18:00 / 30s").grid(
-            row=2, column=1, padx=8, pady=6, sticky="w")
-        ctk.CTkButton(add_frame, text="➕ 添加（执行当前动作列表）", font=FONT_BODY,
-                      fg_color=COLOR_TEAL[0], hover_color=COLOR_TEAL[1],
-                      command=self._add_schedule_task).grid(
-            row=3, column=0, columnspan=2, padx=12, pady=(4, 12), sticky="w")
+        ctk.CTkEntry(
+            add_frame,
+            textvariable=self.sch_time_var,
+            width=120,
+            font=FONT_MONO,
+            placeholder_text="18:00 / 30s",
+        ).grid(row=2, column=1, padx=8, pady=6, sticky="w")
+        ctk.CTkButton(
+            add_frame,
+            text="➕ 添加（执行当前动作列表）",
+            font=FONT_BODY,
+            fg_color=COLOR_TEAL[0],
+            hover_color=COLOR_TEAL[1],
+            command=self._add_schedule_task,
+        ).grid(row=3, column=0, columnspan=2, padx=12, pady=(4, 12), sticky="w")
 
     # ── 底部状态栏 ──
     def _build_statusbar(self):
@@ -1002,7 +1235,11 @@ class GameAutoToolApp(ctk.CTk):
         bar.grid_columnconfigure(0, weight=1)
 
         self.status_lbl = ctk.CTkLabel(
-            bar, text="就绪", font=FONT_SMALL, anchor="w", text_color="gray60",
+            bar,
+            text="就绪",
+            font=FONT_SMALL,
+            anchor="w",
+            text_color="gray60",
         )
         self.status_lbl.grid(row=0, column=0, padx=12, pady=3, sticky="w")
 
@@ -1089,7 +1326,6 @@ class GameAutoToolApp(ctk.CTk):
             en = len(act.get("else", []))
             return f"[🔀 若{cond}] {act.get('template','?')}  then:{tn}  else:{en}"
         return f"[?] {t}"
-
 
     def _refresh_list(self):
         self.act_lb.delete(0, tk.END)
@@ -1364,7 +1600,12 @@ class GameAutoToolApp(ctk.CTk):
             messagebox.showwarning("警告", "请输入文件名", parent=self)
             return
         try:
-            vals = [self.cap_rx.get(), self.cap_ry.get(), self.cap_rw.get(), self.cap_rh.get()]
+            vals = [
+                self.cap_rx.get(),
+                self.cap_ry.get(),
+                self.cap_rw.get(),
+                self.cap_rh.get(),
+            ]
             region = [int(v) if v else 0 for v in vals] if any(vals) else None
         except ValueError:
             messagebox.showerror("错误", "区域坐标必须为整数", parent=self)
@@ -1395,7 +1636,8 @@ class GameAutoToolApp(ctk.CTk):
                 result = find_on_screen(tmpl, None, conf)
                 if result:
                     self._safe_log(
-                        f"  ✅ 找到 {tmpl}  位置({result[0]}, {result[1]})  置信度 {result[2]:.3f}")
+                        f"  ✅ 找到 {tmpl}  位置({result[0]}, {result[1]})  置信度 {result[2]:.3f}"
+                    )
                 else:
                     self._safe_log(f"  ✗ 未找到 {tmpl}（置信度不足）")
             except Exception as e:
@@ -1434,8 +1676,8 @@ class GameAutoToolApp(ctk.CTk):
             self.recorder.set_window_offset(self.wm_obj.left, self.wm_obj.top)
         self.recorder.start()
         self.btn_record.configure(
-            text="⏹  停止录制  (F10)",
-            fg_color=COLOR_RED[0], hover_color=COLOR_RED[1])
+            text="⏹  停止录制  (F10)", fg_color=COLOR_RED[0], hover_color=COLOR_RED[1]
+        )
         self.rec_status_lbl.configure(text="● 录制中", text_color="#e74c3c")
         self._log("⏺ 宏录制已开始")
 
@@ -1443,7 +1685,9 @@ class GameAutoToolApp(ctk.CTk):
         self.recorder.stop()
         self.btn_record.configure(
             text="⏺  开始录制  (F10)",
-            fg_color=COLOR_ORANGE[0], hover_color=COLOR_ORANGE[1])
+            fg_color=COLOR_ORANGE[0],
+            hover_color=COLOR_ORANGE[1],
+        )
         self.rec_status_lbl.configure(text="● 已停止", text_color="#f39c12")
         self._log(f"⏹ 宏录制停止，共录制 {len(self.recorder.actions)} 个动作")
 
@@ -1455,7 +1699,10 @@ class GameAutoToolApp(ctk.CTk):
         n = len(actions)
         self.rec_count_lbl.configure(text=f"已录 {n} 个动作")
         start = max(0, n - 30)
-        lines = [f"  {start+i+1:3d}.  {self._action_desc(a)}" for i, a in enumerate(actions[start:])]
+        lines = [
+            f"  {start+i+1:3d}.  {self._action_desc(a)}"
+            for i, a in enumerate(actions[start:])
+        ]
         self.rec_preview.configure(state="normal")
         self.rec_preview.delete("1.0", "end")
         self.rec_preview.insert("1.0", "\n".join(lines))
@@ -1522,7 +1769,7 @@ class GameAutoToolApp(ctk.CTk):
             self.sch_lb.insert(
                 tk.END,
                 f"  [{mark}]  {task.time_spec:<8}  {task.description}  "
-                f"已执行 {task.run_count} 次  上次 {task.last_run}  ID:{task.task_id}"
+                f"已执行 {task.run_count} 次  上次 {task.last_run}  ID:{task.task_id}",
             )
 
     def _get_selected_task_id(self) -> str | None:
@@ -1541,7 +1788,9 @@ class GameAutoToolApp(ctk.CTk):
         if tid in tasks:
             t = tasks[tid]
             self.scheduler.toggle_task(tid, not t.enabled)
-            self._log(f"计划 {t.description} 已{'\u542f用' if not t.enabled else '\u7981用'}")
+            self._log(
+                f"计划 {t.description} 已{'\u542f用' if not t.enabled else '\u7981用'}"
+            )
             self._refresh_schedule_list()
 
     def _delete_selected_task(self):
@@ -1559,6 +1808,7 @@ class GameAutoToolApp(ctk.CTk):
 if __name__ == "__main__":
     try:
         import ctypes
+
         ctypes.windll.shcore.SetProcessDpiAwareness(1)
     except Exception:
         pass
