@@ -1,27 +1,20 @@
-import win32gui
-import win32con
-import win32com.client
-import pyautogui
-import time
+from actions.WindowsManager import WindowsManager
+import actions.Move as move
+import utils.ReadConfig as ReadConfig
 
-def main(WindowName, ClassName):
-    '''抓取窗口'''
-    hwnd = win32gui.FindWindow(ClassName, WindowName)
-    # window_text = win32gui.GetWindowText(hwnd)
-    # class_name = win32gui.GetClassName(hwnd)
-    # print(f"窗口名称：{window_text}，窗口类型：{class_name}")
-    if hwnd:
-        win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
-        # shell = win32com.client.Dispatch("WScript.Shell")
-        # shell.SendKeys('%')  # 模拟按下 Alt
-        win32gui.SetForegroundWindow(hwnd)
-        # 行为代码
-        # pyautogui.keyDown('w')
-        # time.sleep(3)
-        # pyautogui.keyUp('W')
-    else:
-        print("没找到窗口")
-
+def main():
+    pass
 
 if __name__ == "__main__":
-    main("test.txt - Notepad", "Notepad")
+    wm = WindowsManager()
+
+    # UnrealWindow
+    if not wm.find_window("洛克王国：世界  ", "UnrealWindow"):
+        print(f"未找到该窗口！")
+    else:
+        wm.bring_to_foreground()
+        print(f"Window Name: {wm.window_name}, Class Name: {wm.class_name}")
+        print(f"1: {wm.left} \n 2. {wm.top}")
+        actions = ReadConfig.load_actions()
+        # move.handle_mouse(actions[0], wm.left, wm.top)
+        move.handle_keyboard(actions[1])
