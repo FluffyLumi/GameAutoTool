@@ -1268,8 +1268,8 @@ class GameAutoToolApp(ctk.CTk):
     # ══════════════════════════════════════
 
     def _find_window(self):
-        name = self.win_name_var.get().strip()
-        if not name:
+        name = self.win_name_var.get()
+        if not name.strip():
             return
         self.wm_obj = WindowsManager()
         if not self.wm_obj.find_window(name, None):
