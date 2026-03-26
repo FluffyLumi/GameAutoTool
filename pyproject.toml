@@ -1,11 +1,14 @@
 [project]
 name = "gameauto"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.2.0"
+description = "Windows game automation tool with GUI, image recognition, macro recording and scheduling"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "customtkinter>=5.2.0",
     "opencv-python>=4.13.0.92",
     "pyautogui>=0.9.54",
+    "pynput>=1.7.7",
     "pywin32>=311",
+    "schedule>=1.2.0",
 ]
